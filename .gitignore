@@ -1,2 +1,3 @@
-config.js
-bot.js
+_config.js
+dist/*
+node_modules/
