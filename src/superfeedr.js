@@ -7,6 +7,10 @@ ChatBot.superfeedr = {
       webhook = ChatBot.config.baseUrl + '?chat_platform=' + webhook.platform + '&chat_id=' + webhook.channel
     }
 
+    if (typeof callback === 'undefined') {
+      callback = function() {}
+    }
+
     var data = querystring.stringify({
       'hub.mode': 'subscribe',
       'hub.topic': feed,
@@ -45,6 +49,10 @@ ChatBot.superfeedr = {
       webhook = ChatBot.config.baseUrl + '?chat_platform=' + webhook.platform + '&chat_id=' + webhook.channel
     }
 
+    if (typeof callback === 'undefined') {
+      callback = function() {}
+    }
+
     var data = querystring.stringify({
       'hub.mode': 'unsubscribe',
       'hub.topic': feed,
@@ -80,6 +88,10 @@ ChatBot.superfeedr = {
   list: function (page, webhook, callback) {
     if (typeof webhook === 'object') {
       webhook = ChatBot.config.baseUrl + '?chat_platform=' + webhook.platform + '&chat_id=' + webhook.channel
+    }
+
+    if (typeof callback === 'undefined') {
+      callback = function() {}
     }
 
     var data = querystring.stringify({

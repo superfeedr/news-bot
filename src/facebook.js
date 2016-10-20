@@ -10,7 +10,7 @@ ChatBot.platforms.facebook = {
       path: '/v2.6/me/messages?access_token=' + ChatBot.config.facebook.token,
       headers: {
         'Content-Type': 'application/json',
-        'Content-Length': json.length
+        'Content-Length': Buffer.byteLength(json)
       }
     }, function (res) {
       var d = ''
@@ -22,9 +22,9 @@ ChatBot.platforms.facebook = {
 
       res.on('end', function () {
         if (res.statusCode >= 400 && res.statusCode < 500) {
+          console.error('Facebook Error', res.statusCode, d, json)
           return callback(null, true)
         }
-        console.error('Facebook Error', res.statusCode, d)
         return callback(null, false)
       })
     })
@@ -34,15 +34,60 @@ ChatBot.platforms.facebook = {
   },
 
   // Sends a message to the chatId. Calls callback when done
-  sendMessage: function (chatId, body, callback) {
+  sendMessage: function (chatId, body, args, callback) {
     var message = {
       recipient: {id: chatId}
     }
-    if (typeof body === 'string') {
+    if(body === ChatBot.responses.unknownCommand) {
+      message.message = {
+        attachment: {
+          type: 'template',
+          payload: {
+            template_type: 'button',
+            text: ChatBot.responses.unknownCommand,
+            buttons: [{
+              type: 'postback',
+              title: 'Show help',
+              payload: '/help'
+            }]
+          }
+        }
+      }
+    } else if(body === ChatBot.responses.urlCommand) {
+      message.message = {
+        attachment: {
+          type: 'template',
+          payload: {
+            template_type: 'button',
+            text: ChatBot.responses.urlCommand,
+            buttons: [{
+              type: 'postback',
+              title: 'Subscribe',
+              payload: '/subscribe ' + args
+            }]
+          }
+        }
+      }
+    } else if(body === ChatBot.responses.invalidCommand) {
+      message.message = {
+        attachment: {
+          type: 'template',
+          payload: {
+            template_type: 'button',
+            text: ChatBot.responses.invalidCommand,
+            buttons: [{
+              type: 'postback',
+              title: 'Show help',
+              payload: '/help'
+            }]
+          }
+        }
+      }
+    } else if (typeof body === 'string') { // Is this a string?
       message.message = {
         text: body
       }
-    } else {
+    } else { // Must be an object
       message.message = {
         attachment: {
           type: 'template',
@@ -56,6 +101,7 @@ ChatBot.platforms.facebook = {
         var element = {
           title: item.title,
           subtitle: body.title,
+          image_url: item.image,
           buttons: []
         }
         if (item.permalinkUrl) {
@@ -65,6 +111,12 @@ ChatBot.platforms.facebook = {
             title: 'Open Web URL'
           })
         }
+        element.buttons.push({
+          type: 'postback',
+          title: 'Stop following',
+          payload: '/unsubscribe ' + body.status.feed
+        })
+
         message.message.attachment.payload.elements.push(element)
       })
     }
@@ -87,6 +139,11 @@ ChatBot.platforms.facebook = {
           messages.push({
             from: m.sender.id,
             content: m.message.text
+          })
+        } else if(m && m.postback) {
+          messages.push({
+            from: m.sender.id,
+            content: m.postback.payload
           })
         }
       }
