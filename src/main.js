@@ -4,7 +4,7 @@
 exports.handler = function (req, res) {
   if (req['platform']) return ChatBot.chatHandler(req, res, req['platform'])
   if (req['chat_id']) return ChatBot.superfeedrHandler(req, res)
-  return res.succeed('Hum. who are you?')
+  return res.succeed(['version:', VERSION].join(' '))
 }
 exports.ChatBot = ChatBot
 
@@ -24,10 +24,10 @@ ChatBot.superfeedrHandler = function (req, res) {
 
   // If we have no items, this must be a notification about an error in the feed
   if (!req['body']['items']) {
-    return ChatBot.platforms[req.chat_platform].sendMessage(req.chat_id, 'Hum. We got a problem fetching content from ' + req['body']['status']['feed'] + '. You may want to unsubscribe from it.', null, processChatPlatformResponse)
+    return ChatBot.platforms[req.chat_platform].sendMessage(req.chat_id, ChatBot.responses[req.chat_platform].brokenFeed(req['body'].status.feed), processChatPlatformResponse)
   }
 
-  return ChatBot.platforms[req.chat_platform].sendMessage(req.chat_id, req['body'], null, processChatPlatformResponse)
+  return ChatBot.platforms[req.chat_platform].sendMessage(req.chat_id, ChatBot.responses[req.chat_platform].notification(req['body']), processChatPlatformResponse)
 }
 
 /**
@@ -54,8 +54,8 @@ ChatBot.processMessages = function (messages, platform, done) {
 
   var command = ChatBot.parseCommand(message.content)
 
-  ChatBot.handleCommand(command, platform, message.from, message.content, function (response, args) {
-    ChatBot.platforms[platform].sendMessage(message.from, response, args, function (error, unsubscribe) {
+  ChatBot.handleCommand(command, platform, message.from, message.content, function (response) {
+    ChatBot.platforms[platform].sendMessage(message.from, response, function (error, unsubscribe) {
       if (error) {
         ChatBot.parseCommand('Sorry there was an error. ' + error)
       }
@@ -88,20 +88,11 @@ ChatBot.parseCommand = function (text) {
  * Handles commands...
  */
 ChatBot.handleCommand = function (command, chatPlatform, chatId, text, cb) {
-  if (!command) return cb(ChatBot.responses.unknownCommand)
+  if (!command) return cb(ChatBot.responses[chatPlatform].unknownCommand(command))
 
-  var invalidCommandMessage = ChatBot.responses.invalidCommand
   if (ChatBot.commands[command[0]]) {
     ChatBot.commands[command[0]](chatPlatform, chatId, command[1], cb)
   } else {
-    return cb(invalidCommandMessage)
+    cb(ChatBot.responses[chatPlatform].invalidCommand(command[0]))
   }
-}
-
-ChatBot.responses = {
-  unknownCommand: 'Sorry, I could not understand.',
-  invalidCommand: 'I am sorry, but this is not a valid command.',
-  helpCommand: 'I can help you subscribe to your favorite websites and receive messages when they publish new content. Start by telling me your favorite site\'s URL (starting with http).',
-  urlCommand: 'Thanks, do you want to subscribe to that site?',
-  urlNotSubscribable: 'I am sorry, but you cannot subscribe to this site for now :( Ask them to support RSS!'
 }

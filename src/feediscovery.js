@@ -4,7 +4,7 @@ ChatBot.feediscovery = function (url, callback) {
     method: 'GET',
     host: 'feediscovery.appspot.com',
     port: 443,
-    path: '/?url=' + encodeURI(url),
+    path: '/?url=' + encodeURI(url)
   }, function (res) {
     var body = ''
     res.setEncoding('utf8')

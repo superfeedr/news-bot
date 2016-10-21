@@ -17,6 +17,8 @@ var ChatBot = {
   },
   commands: {
   },
+  responses: {
+  },
   platforms: {
   },
   superfeedr: {

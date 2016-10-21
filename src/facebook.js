@@ -34,92 +34,11 @@ ChatBot.platforms.facebook = {
   },
 
   // Sends a message to the chatId. Calls callback when done
-  sendMessage: function (chatId, body, args, callback) {
+  sendMessage: function (chatId, body, callback) {
     var message = {
       recipient: {id: chatId}
     }
-    if(body === ChatBot.responses.unknownCommand) {
-      message.message = {
-        attachment: {
-          type: 'template',
-          payload: {
-            template_type: 'button',
-            text: ChatBot.responses.unknownCommand,
-            buttons: [{
-              type: 'postback',
-              title: 'Show help',
-              payload: '/help'
-            }]
-          }
-        }
-      }
-    } else if(body === ChatBot.responses.urlCommand) {
-      message.message = {
-        attachment: {
-          type: 'template',
-          payload: {
-            template_type: 'button',
-            text: ChatBot.responses.urlCommand,
-            buttons: [{
-              type: 'postback',
-              title: 'Subscribe',
-              payload: '/subscribe ' + args
-            }]
-          }
-        }
-      }
-    } else if(body === ChatBot.responses.invalidCommand) {
-      message.message = {
-        attachment: {
-          type: 'template',
-          payload: {
-            template_type: 'button',
-            text: ChatBot.responses.invalidCommand,
-            buttons: [{
-              type: 'postback',
-              title: 'Show help',
-              payload: '/help'
-            }]
-          }
-        }
-      }
-    } else if (typeof body === 'string') { // Is this a string?
-      message.message = {
-        text: body
-      }
-    } else { // Must be an object
-      message.message = {
-        attachment: {
-          type: 'template',
-          payload: {
-            template_type: 'generic',
-            elements: []
-          }
-        }
-      }
-      body.items.forEach(function (item) {
-        var element = {
-          title: item.title,
-          subtitle: body.title,
-          image_url: item.image,
-          buttons: []
-        }
-        if (item.permalinkUrl) {
-          element.buttons.push({
-            type: 'web_url',
-            url: item.permalinkUrl,
-            title: 'Open Web URL'
-          })
-        }
-        element.buttons.push({
-          type: 'postback',
-          title: 'Stop following',
-          payload: '/unsubscribe ' + body.status.feed
-        })
-
-        message.message.attachment.payload.elements.push(element)
-      })
-    }
+    message.message = body
     return ChatBot.platforms.facebook._post(message, callback)
   },
 
@@ -140,7 +59,7 @@ ChatBot.platforms.facebook = {
             from: m.sender.id,
             content: m.message.text
           })
-        } else if(m && m.postback) {
+        } else if (m && m.postback) {
           messages.push({
             from: m.sender.id,
             content: m.postback.payload
@@ -149,5 +68,188 @@ ChatBot.platforms.facebook = {
       }
     }
     return onMessages(messages)
+  }
+
+}
+
+// Responses
+ChatBot.responses.facebook = {}
+
+ChatBot.responses.facebook.notification = function (body) {
+  var message = {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'generic',
+        elements: []
+      }
+    }
+  }
+  body.items.forEach(function (item) {
+    var element = {
+      title: item.title,
+      subtitle: body.title,
+      image_url: item.image,
+      buttons: []
+    }
+    if (item.permalinkUrl) {
+      element.buttons.push({
+        type: 'web_url',
+        url: item.permalinkUrl,
+        title: 'Open Web URL'
+      })
+    }
+    element.buttons.push({
+      type: 'postback',
+      title: 'Stop following',
+      payload: '/unsubscribe ' + body.status.feed
+    })
+    message.attachment.payload.elements.push(element)
+  })
+  return message
+}
+
+ChatBot.responses.facebook.unknownCommand = function (command) {
+  return {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'button',
+        text: 'Sorry, I could not understand.',
+        buttons: [{
+          type: 'postback',
+          title: 'Show help',
+          payload: '/help'
+        }, {
+          type: 'postback',
+          title: 'List subscriptions',
+          payload: '/list'
+        }]
+      }
+    }
+  }
+}
+
+ChatBot.responses.facebook.invalidCommand = function (command) {
+  return {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'button',
+        text: 'I am sorry, but this is not a valid command.',
+        buttons: [{
+          type: 'postback',
+          title: 'Show help',
+          payload: '/help'
+        }]
+      }
+    }
+  }
+}
+
+ChatBot.responses.facebook.text = function (message) {
+  return {
+    text: message
+  }
+}
+
+ChatBot.responses.facebook.helpCommand = function () {
+  return {
+    text: 'I can help you subscribe to your favorite websites and receive messages when they publish new content. Start by telling me your favorite site\'s URL (starting with http).'
+  }
+}
+
+ChatBot.responses.facebook.urlCommand = function (url) {
+  return {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'button',
+        text: 'Thanks, do you want to subscribe to that site?',
+        buttons: [{
+          type: 'postback',
+          title: 'Subscribe',
+          payload: '/subscribe ' + url
+        }]
+      }
+    }
+  }
+}
+
+ChatBot.responses.facebook.urlNotSubscribable = function (url) {
+  return {
+    text: 'I am sorry, but you cannot subscribe to this site for now :( Ask them to support RSS!'
+  }
+}
+
+ChatBot.responses.facebook.subscriptionList = function (list) {
+  var message = {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'generic',
+        elements: []
+      }
+    }
+  }
+  list.subscriptions.forEach(function (s) {
+    var element = {
+      title: s.subscription.feed.title,
+      subtitle: s.subscription.feed.status.feed,
+      buttons: [{
+        type: 'postback',
+        title: 'Stop following',
+        payload: '/unsubscribe ' + s.subscription.feed.status.feed
+      }]
+    }
+    message.attachment.payload.elements.push(element)
+  })
+
+  if (list.meta.total > list.meta.by_page * list.meta.page) {
+    message.attachment.payload.elements.push({
+      title: 'Next Page',
+      subtitle: 'You have ' + list.meta.total + ' subscriptions.',
+      buttons: [{
+        type: 'postback',
+        title: 'Next page',
+        payload: '/list ' + (list.meta.page + 1)
+      }]
+    })
+  }
+
+  return message
+}
+
+ChatBot.responses.facebook.noSubscriptions = function (page) {
+  return {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'button',
+        text: 'There are no subscriptions. Try the previous page.',
+        buttons: [{
+          type: 'postback',
+          title: 'Previous page',
+          payload: '/list ' + (page - 1)
+        }]
+      }
+    }
+  }
+}
+
+ChatBot.responses.facebook.brokenFeed = function (url) {
+  return {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'button',
+        text: 'Hum. We got a problem fetching content from ' + url + ' . You may want to unsubscribe from it.',
+        buttons: [{
+          type: 'postback',
+          title: 'Unsubscribe',
+          payload: '/unsubscribe ' + url
+        }]
+      }
+    }
   }
 }

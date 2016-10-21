@@ -12,7 +12,7 @@ ChatBot.config.baseUrl          = 'https://c6dcf91a.ngrok.io'
 ChatBot.config.superfeedr.login = 'telegraphbot'
 ChatBot.config.superfeedr.token = '7e4de2150d78defc8b314486167560cf'
 ChatBot.config.telegram.auth    = '289134957:AAF5YGsfOi1ylUj0fiwDSDW2FN4q7xxYjkI'
-ChatBot.config.facebook.token   = 'EAAAALJJTxK8BAOMu678aZBB7PhML96YjwuLgzyHZBZBf9qKSZA2OAod5zeqcl9Je7JP4B4If4Yan1PCL0ci49ZCaZCqlZAPOxkZBl6X7ZAgNuNapTwxePny2dEZB5pIYcMP1fc0MxmmJayzpEk5x4ZCsSnZAorkS87AKPy4ZD'
+ChatBot.config.facebook.token   = 'EACQTcsWbosABAJmrBmeAjy2Dg4WwldLFJU33ovMX4uljq6541PQ6UTO9UylnILZALcvTfvD5jTHActnrjXo1TRGHOA2lwsmtt9NjZAEuzMJD2tUHEATNkZARsnaKtsQ7G13wBd8fmoTAwH2tZBgFLu5gmc6pSYgbO4US1niHPwZDZD'
 
 /*
 We debug using the superfeedr_local_bot which should run locally.

@@ -8,7 +8,7 @@ ChatBot.superfeedr = {
     }
 
     if (typeof callback === 'undefined') {
-      callback = function() {}
+      callback = function () {}
     }
 
     var data = querystring.stringify({
@@ -50,7 +50,7 @@ ChatBot.superfeedr = {
     }
 
     if (typeof callback === 'undefined') {
-      callback = function() {}
+      callback = function () {}
     }
 
     var data = querystring.stringify({
@@ -91,11 +91,12 @@ ChatBot.superfeedr = {
     }
 
     if (typeof callback === 'undefined') {
-      callback = function() {}
+      callback = function () {}
     }
 
     var data = querystring.stringify({
       'hub.mode': 'list',
+      'by_page': 5,
       'page': page,
       'detailed': true,
       'search[endpoint.url]': webhook

@@ -1,21 +1,13 @@
 ChatBot.commands.list = function (chatPlatform, chatId, args, cb) {
   var page = Math.max(1, parseInt(args[0]) || 1)
   ChatBot.superfeedr.list(page, {platform: chatPlatform, channel: chatId}, function (error, subscriptionsPage) {
-    if (error) return cb('We could not list subscriptions... sorry!')
+    if (error) return cb(ChatBot.responses[chatPlatform].text('We could not list subscriptions... sorry!'))
 
     if (subscriptionsPage.subscriptions.length === 0) {
-      if (page > 1) return cb('There are no subscriptions. Get previous page with /list ' + (page - 1))
-      return cb('There are no subscriptions. Start with /subscribe')
+      if (page > 1) return cb(ChatBot.responses[chatPlatform].noSubscriptions(page))
+      return cb(ChatBot.responses[chatPlatform].text('There are no subscriptions. What\'s your favorite site?'))
     }
 
-    var message = subscriptionsPage.subscriptions.map(function (s) {
-      return [s.subscription.feed.title, s.subscription.feed.status.feed].join(': ')
-    }).join('\n')
-
-    if (subscriptionsPage.meta.total > subscriptionsPage.meta.by_page * subscriptionsPage.meta.page) {
-      message += '\nGet next page with /list ' + (subscriptionsPage.meta.page + 1)
-    }
-
-    return cb(message)
+    return cb(ChatBot.responses[chatPlatform].subscriptionList(subscriptionsPage))
   })
 }

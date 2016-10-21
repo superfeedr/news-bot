@@ -42,19 +42,8 @@ ChatBot.platforms.telegram = {
       'parse_mode': 'Markdown'
     }
 
-    // Simple text message
-    if (typeof body === 'string') {
-      data.text = body
-      return ChatBot.platforms.telegram._post('sendMessage', data, callback)
-    }
-
-    // For each new item in the feed, let's send it to
-    body.items.forEach(function (item) {
-      var message = '[' + item.title + '](' + item.permalinkUrl + ')'
-      message = [body.title, message].join(' - ')
-      data.text = message
-      return ChatBot.platforms.telegram._post('sendMessage', data, callback)
-    })
+    data.text = body
+    return ChatBot.platforms.telegram._post('sendMessage', data, callback)
   },
 
   setStatus: function (chatId, status, callback) {
@@ -78,5 +67,44 @@ ChatBot.platforms.telegram = {
     }
     return ChatBot.platforms.telegram._post('setWebhook', data, callback)
   }
+}
 
+// Responses
+ChatBot.responses.telegram = {}
+
+ChatBot.responses.telegram.notification = function (body) {
+  var messages = []
+  body.items.forEach(function (item) {
+    var message = '[' + item.title + '](' + item.permalinkUrl + ')'
+    messages.push([body.title, message].join(' - '))
+  })
+  return messages.join('\n')
+}
+
+ChatBot.responses.telegram.unknownCommand = function (command) {
+  return 'Sorry, I could not understand. Type /help'
+}
+
+ChatBot.responses.telegram.invalidCommand = function (command) {
+  return 'I am sorry, but this is not a valid command.'
+}
+
+ChatBot.responses.telegram.text = function (message) {
+  return message
+}
+
+ChatBot.responses.telegram.helpCommand = function () {
+  return 'I can help you subscribe to your favorite websites and receive messages when they publish new content. Start by telling me your favorite site\'s URL (starting with http).'
+}
+
+ChatBot.responses.telegram.urlCommand = function (url) {
+  return 'Thanks, do you want to subscribe to that site?'
+}
+
+ChatBot.responses.telegram.urlNotSubscribable = function (url) {
+  return 'I am sorry, but you cannot subscribe to this site for now :( Ask them to support RSS!'
+}
+
+ChatBot.responses.telegram.brokenFeed = function (url) {
+  return 'Hum. We got a problem fetching content from ' + url + ' . You may want to unsubscribe from it.'
 }
