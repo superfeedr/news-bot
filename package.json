@@ -7,6 +7,7 @@
     "bump": "awk '{sub(/[[:digit:]]+$/,$NF+1)}1' src/version.js > src/version.js.new; mv src/version.js.new src/version.js",
     "build": "find src -name \"*.js\" -print0 | xargs -0 awk 'FNR==1{print \"\"}1' > dist/bot.js",
     "setvars": "cat _config.js >> dist/bot.js",
+    "lint": "./node_modules/.bin/eslint dist/bot.js",
     "deploy-aws": "cd dist && zip -r bot.js.zip bot.js && cd .. && aws lambda update-function-code --function-name arn:aws:lambda:us-east-1:856273867483:function:feed-bot --publish --zip-file fileb://dist/bot.js.zip"
   },
   "keywords": [

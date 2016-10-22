@@ -37,8 +37,11 @@ var server = http.createServer(function(req, res) {
       console.log('  ', headers)
       console.log('  ')
       console.log('  ', body)
+      console.log('   -')
       if(headers['content-type'].match(/application\/json/))
         params['body'] = JSON.parse(body)
+      if(headers['content-type'].match(/application\/x-www-form-urlencoded/))
+        params['body'] = qs.parse(body)
     }
 
     try {

@@ -1,4 +1,5 @@
 var querystring = require('querystring')
+var url = require('url')
 var https = require('https')
 
 var ChatBot = {

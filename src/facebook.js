@@ -33,18 +33,22 @@ ChatBot.platforms.facebook = {
     req.end()
   },
 
-  // Sends a message to the chatId. Calls callback when done
-  sendMessage: function (chatId, body, callback) {
-    var message = {
-      recipient: {id: chatId}
+  sendMessage: function (chatId, bodies, callback) {
+    if (!Array.isArray(bodies)) {
+      bodies = [bodies]
     }
-    message.message = body
-    return ChatBot.platforms.facebook._post(message, callback)
+    bodies.map((body) => {
+      var message = {
+        recipient: {id: chatId}
+      }
+      message.message = body
+      return ChatBot.platforms.facebook._post(message, callback)
+    })
   },
 
   // Parses a chat message
-  parseChatMessage: function (request, onSetup, onMessages) {
-    if (request['hub.challenge']) return onSetup(request['hub.challenge'])
+  parseChatMessage: function (request, requestResponse, onMessages) {
+    if (request['hub.challenge']) return requestResponse(request['hub.challenge'])
 
     if (!request.body || !request.body.entry || !request.body.entry[0]) return onMessages([{}])
 
@@ -96,7 +100,7 @@ ChatBot.responses.facebook.notification = function (body) {
       element.buttons.push({
         type: 'web_url',
         url: item.permalinkUrl,
-        title: 'Open Web URL'
+        title: 'Open'
       })
     }
     element.buttons.push({
