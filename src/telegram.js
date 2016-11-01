@@ -107,7 +107,7 @@ ChatBot.responses.telegram.notification = function (body) {
 
 ChatBot.responses.telegram.unknownCommand = function (command) {
   return {
-    text: 'Sorry, I could not understand.',
+    text: 'Sorry, I could not understand. If you\'re typing a website URL, please, make sure you start with http',
     reply_markup: JSON.stringify({
       inline_keyboard: [[{
         text: 'Help',
@@ -129,6 +129,12 @@ ChatBot.responses.telegram.invalidCommand = function (command) {
 ChatBot.responses.telegram.text = function (message) {
   return {
     text: message
+  }
+}
+
+ChatBot.responses.facebook.helloCommand = function () {
+  return {
+    text: 'Hi! I can help you subscribe to your favorite websites and receive messages when they publish new content. Start by telling me your favorite site\'s URL (starting with http).'
   }
 }
 

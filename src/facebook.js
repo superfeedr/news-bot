@@ -2,6 +2,10 @@
 ChatBot.platforms.facebook = {
 
   _post: function (data, callback) {
+
+    console.trace()
+    console.log(data)
+
     var json = JSON.stringify(data)
     var req = https.request({
       method: 'POST',
@@ -119,7 +123,7 @@ ChatBot.responses.facebook.unknownCommand = function (command) {
       type: 'template',
       payload: {
         template_type: 'button',
-        text: 'Sorry, I could not understand.',
+        text: 'Sorry, I could not understand. If you\'re typing a website URL, please, make sure you start with http',
         buttons: [{
           type: 'postback',
           title: 'Show help',
@@ -154,6 +158,12 @@ ChatBot.responses.facebook.invalidCommand = function (command) {
 ChatBot.responses.facebook.text = function (message) {
   return {
     text: message
+  }
+}
+
+ChatBot.responses.facebook.helloCommand = function () {
+  return {
+    text: 'Hi! I can help you subscribe to your favorite websites and receive messages when they publish new content. Start by telling me your favorite site\'s URL (starting with http).'
   }
 }
 

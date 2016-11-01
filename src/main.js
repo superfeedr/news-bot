@@ -71,6 +71,8 @@ var URL_REGEX = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b
 ChatBot.parseCommand = function (text) {
   if (text.match(URL_REGEX)) return ['url', text]
 
+  if (text.toLowerCase() == "hello") return ['hello']
+
   var tokens = text.split(' ')
   if (!tokens[0].match(/^\//)) return null
 
