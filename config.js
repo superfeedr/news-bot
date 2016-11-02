@@ -1,16 +1,5 @@
-var querystring = require('querystring');
-var https = require('https');
-
-/* The url of our lambda. This will be sent to superfeedr when subscribing to feeds*/
-var lambda = "https://xxxxx.execute-api.us-east-1.amazonaws.com/v0/";
-
-/* The Superfeedr credentials */
-var superfeedrCredentials = {
-  login: 'xxxxx',
-  token: 'xxxxx'
-};
-
-/*The telegram credentials*/
-var telegramBotAuth = "xxxx";
-
-var commands = {};
+ChatBot.config.baseUrl = '' // The base URL for your webhook interface
+ChatBot.config.superfeedr.login = 'telegraphbot' // superfeedr login
+ChatBot.config.superfeedr.token = '' // superfeedr token with subscribe, unsubsribe, list, retrieve rights
+ChatBot.config.telegram.auth = '' // auth string for your telegram bot 'id:token'
+ChatBot.config.facebook.token =  '' // Facebook token
